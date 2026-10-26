@@ -1,0 +1,23 @@
+name: Buscar tesouro direto
+on:
+  schedule:
+    - cron: '0 9 * * 1-5'   # dias úteis às 9h
+  workflow_dispatch:
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Baixar CSV
+        run: |
+          curl -L -A "Mozilla/5.0" \
+            -o PrecoTaxaTesouroDireto.csv \
+            "https://www.tesourotransparente.gov.br/ckan/dataset/df56aa42-484a-4a59-8184-7676580c81e3/resource/796d2059-14e9-44e3-80c9-2d9e30b405c1/download/PrecoTaxaTesouroDireto.csv"
+      - name: Commit e push
+        run: |
+          git config user.name "GitHub Action"
+          git config user.email "action@github.com"
+          git add PrecoTaxaTesouroDireto.csv
+          git commit -m "Atualiza dados $(date +%F)" || exit 0
+          git push
